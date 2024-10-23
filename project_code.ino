@@ -7,8 +7,8 @@
 
 #define LED_PIN     10
 
-#define NUM_LEDS 8
-#define MAX_SPACES 2
+#define NUM_LEDS 24
+#define MAX_SPACES 6
 
 #define BRIGHTNESS  20
 
@@ -22,15 +22,17 @@ CRGB leds[NUM_LEDS];
 #define PLAYER2_COLOR CRGB::Blue
 #define EMPTY_COLOR CHSV(0,0,0)
 
-#define PLAYER1_PIN 1
-#define PLAYER2_PIN 2
-
 // LCD macros
 
 const int rs = 12, en = 11, d4 = 7, d5 = 6, d6 = 5, d7 = 4;
 #define LCD_ROWS 4
 #define LCD_COLUMNS 20
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+// player control pins
+
+#define PLAYER1_PIN 1
+#define PLAYER2_PIN 2
 
 // game variables
 
