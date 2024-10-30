@@ -58,13 +58,12 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 // game space definitions
 // all ladders. space ON, then space to move TO. SUBTRACT 1 FROM SPACE ON BOARD (so if label on physical board says 12, put 11).
-#define LADDER_COUNT 5
+#define LADDER_COUNT 4
 int LADDERS[][2] = {
   {1,13},
   {3,18},
   {6,14},
-  {10,22},
-  {15,24}
+  {10,22}
 };
 #define CHUTE_COUNT 3
 int CHUTES[][2] = {
@@ -323,6 +322,8 @@ void loop() {
       game_loop();
     }
     currentplayer = 1;
+    player1pos = 0;
+    player2pos = 0;
     return;
   }
   currentplayer = 3 - currentplayer;
