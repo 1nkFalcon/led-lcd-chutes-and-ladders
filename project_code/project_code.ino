@@ -3,24 +3,30 @@
 #include <FastLED.h>
 #include <LiquidCrystal.h>
 
+// timings (in seconds)
+
+#define MAIN_ANIMATION 0.25
+#define DICE_ROLL_TIME 1
+#define DICE_DISPLAY_TIME 1
+#define CHUTE_LADDER_DISPLAY_TIME 1
+#define END_DISPLAY_TIME 10
+
 // LED strip macros
 
 #define LED_PIN     10
 
-#define NUM_LEDS 24
-
 // LEDS defines # of leds in strip
 // start defines first visible led (keep in mind for left handed strips this counts from the RIGHT); starts at 0
-#define STRIP_1_LEDS 22
-#define STRIP_1_START 0
+#define STRIP_1_LEDS 21
+#define STRIP_1_START 1
 #define STRIP_2_LEDS 22
-#define STRIP_2_START 0
+#define STRIP_2_START 1
 #define STRIP_3_LEDS 22
-#define STRIP_3_START 0
+#define STRIP_3_START 1
 #define STRIP_4_LEDS 22
-#define STRIP_4_START 0
-#define STRIP_5_LEDS 22
-#define STRIP_5_START 0
+#define STRIP_4_START 1
+#define STRIP_5_LEDS 23
+#define STRIP_5_START 1
 
 #define NUM_LEDS STRIP_1_LEDS+STRIP_2_LEDS+STRIP_3_LEDS+STRIP_4_LEDS+STRIP_5_LEDS
 
@@ -50,10 +56,22 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 #define PLAYER_1_PIN 2
 #define PLAYER_2_PIN 3
 
-// game macros
-
-#define DICE_ROLL_TIME 3
-#define DICE_DISPLAY_TIME 3
+// game space definitions
+// all ladders. space ON, then space to move TO. SUBTRACT 1 FROM SPACE ON BOARD (so if label on physical board says 12, put 11).
+#define LADDER_COUNT 5
+int LADDERS[][2] = {
+  {1,13},
+  {3,18},
+  {6,14},
+  {10,22},
+  {15,24}
+};
+#define CHUTE_COUNT 3
+int CHUTES[][2] = {
+  {23,0},
+  {17,5},
+  {15,13}
+};
 
 // game variables
 
@@ -67,22 +85,25 @@ int dicedisplay = 0;
 
 int gamestate = 0;
 /*
- * 0 -> waiting player 1
- * 1 -> dice player 1
- * 2 -> dice display 1
- * 3 -> moving player 1
- * 4 -> waiting player 2
- * 5 -> dice player 2
- * 6 -> dice display 2
- * 7 -> moving player 2
- * 8 -> game end!!!
+ * 0 -> waiting
+ * 1 -> dice roll
+ * 2 -> dice display
+ * 3 -> moving
+ * 4 -> ladder
+ * 5 -> chute
+ * 6 -> game end!!!
  */
 
+int currentplayer = 1;
+int currentplayerpin;
+int *currentplayerpos; // ooo pointers scary!
+
 int tick = 0;
+int animation = 0;
 
 // miscellaneous
 
-#define UPDATES_PER_SECOND 100
+#define UPDATES_PER_SECOND 10
 
 void setup() {
 
@@ -146,45 +167,76 @@ void game_loop() {
   // screen
   
   lcd.setCursor(0, 0);
-  lcd.print("> Chutes & Ladders <");
+  if (animation % round(UPDATES_PER_SECOND * 2 * MAIN_ANIMATION) < round(UPDATES_PER_SECOND * MAIN_ANIMATION)) {
+    lcd.print("< Chutes & Ladders >");
+  } else {
+    lcd.print("> Chutes & Ladders <");
+  }
   lcd.setCursor(0, 1);
   switch (gamestate) {
-    case 0:
-      lcd.print("Player 1's Turn!");
+    case 0: // waiting
+      lcd.print("Player ");
+      lcd.print(currentplayer);
+      lcd.print("'s Turn!");
       lcd.setCursor(0, 2);
       lcd.print("(Press the button!)");
       break;
-    case 1:
-      lcd.print("Player 1 Rolling...");
+    case 1: // rolling
+      lcd.print("Player ");
+      lcd.print(currentplayer);
+      lcd.print(" Rolling...");
       lcd.setCursor(random(LCD_COLUMNS), 2);
       lcd.print(String(dicedisplay));
       break;
-    case 2:
-      lcd.print("PLAYER 1 ROLLED A ");
+    case 2: // display
+      lcd.print("PLAYER ");
+      lcd.print(currentplayer);
+      lcd.print(" ROLLED A ");
       lcd.print(String(dicedisplay));
       lcd.print("!");
       lcd.setCursor(0, 2);
       clear_lcd_row();
       break;
     case 3:
-      lcd.print("Player 2's Turn!");
+      lcd.print("PLAYER ");
+      lcd.print(currentplayer);
+      lcd.print(" MOVING...  ");
+      lcd.setCursor(0, 2);
+      clear_lcd_row();
       break;
-    case 4:
-      lcd.print("Player 2 Rolling...");
+    case 4: // ladder
+      lcd.print("PLAYER ");
+      lcd.print(currentplayer);
+      lcd.print(" LANDED ON A");
+      lcd.setCursor(0, 2);
+      lcd.print("LADDER! :)          ");
       break;
-    case 5:
-      lcd.print("Player 2 Moving...");
+    case 5:// chute
+      lcd.print("PLAYER ");
+      lcd.print(currentplayer);
+      lcd.print(" LANDED ON A");
+      lcd.setCursor(0, 2);
+      lcd.print("CHUTE! :(           ");
+      break;
+    case 6: // game end!!!
+      lcd.print("PLAYER ");
+      lcd.print(currentplayer);
+      lcd.print(" HAS WON!!   ");
+      lcd.setCursor(0, 2);
+      clear_lcd_row();
       break;
   }
   lcd.setCursor(0, 3);
-  clear_lcd_row();
-  lcd.setCursor(0, 3);
   lcd.print("P1 ");
   lcd.print(String(player1pos+1));
-  if (player2pos > 8) {
-    lcd.setCursor(LCD_COLUMNS-5,3);
-  } else {
-    lcd.setCursor(LCD_COLUMNS-4,3);
+  if (player1pos+1 <= 9) {
+    lcd.print(" ");
+  }
+  for (int i = 0; i < LCD_COLUMNS-10; i++) {
+    lcd.print(" ");
+  }
+  if (player2pos <= 9) {
+    lcd.print(" ");
   }
   lcd.print(String(player2pos+1));
   lcd.print(" P2");
@@ -194,27 +246,84 @@ void game_loop() {
   FastLED.delay(1000 / UPDATES_PER_SECOND);
 
   tick++;
+  animation++;
 }
 
 void loop() {
+  if (currentplayer == 1) {
+    currentplayerpos =  &player1pos;
+    currentplayerpin = PLAYER_1_PIN;
+  } else {
+    currentplayerpos =  &player2pos;
+    currentplayerpin = PLAYER_2_PIN;
+  }
+  // await input
   gamestate = 0;
   while (true) {
-    if (digitalRead(PLAYER_1_PIN) == HIGH) {
+    if (digitalRead(currentplayerpin) == HIGH) {
       gamestate = 1;
       break;
     }
     game_loop();
   }
   tick = 0;
+  // dice roll
   while (tick < UPDATES_PER_SECOND * DICE_ROLL_TIME) {
     dicedisplay = random(6)+1;
     game_loop();
   }
   gamestate = 2;
   tick = 0;
+  // dice display
   while (tick < UPDATES_PER_SECOND * DICE_DISPLAY_TIME) {
     game_loop();
   }
   gamestate = 3;
+  int movedirection = 1;
   tick = 0;
+  // move player
+  while (tick < UPDATES_PER_SECOND * dicedisplay) {
+    if (((tick + 1) / UPDATES_PER_SECOND) > (tick / UPDATES_PER_SECOND)) {
+      *currentplayerpos+=movedirection;
+      if (*currentplayerpos >= MAX_SPACES-1) {
+        movedirection = -1;
+      }
+    }
+    game_loop();
+  }
+  // check ladders player
+  int moveto = 0;
+  for (int i = 0; i < LADDER_COUNT; i++) {
+    if (LADDERS[i][0] == *currentplayerpos) {
+      gamestate = 4;
+      moveto = LADDERS[i][1];
+      break;
+    }
+  }
+  // check chutes player
+  for (int i = 0; i < CHUTE_COUNT; i++) {
+    if (CHUTES[i][0] == *currentplayerpos) {
+      gamestate = 5;
+      moveto = CHUTES[i][1];
+      break;
+    }
+  }
+  if (gamestate == 4 || gamestate == 5) {
+    tick = 0;
+    while (tick < UPDATES_PER_SECOND * CHUTE_LADDER_DISPLAY_TIME) {
+      game_loop();
+    }
+    *currentplayerpos = moveto;
+  }
+  // check for win
+  if (*currentplayerpos == MAX_SPACES-1) {
+    gamestate = 6;
+    tick = 0;
+    while (tick < UPDATES_PER_SECOND * END_DISPLAY_TIME) {
+      game_loop();
+    }
+    currentplayer = 1;
+    return;
+  }
+  currentplayer = 3 - currentplayer;
 }
