@@ -3,9 +3,9 @@
 #include <FastLED.h>
 #include <LiquidCrystal.h>
 
-// timings (in seconds)
+// timings (in seconds). prooooobably wont behave as expected if you set any of these to "zero", so i wouldn't recommend it.
 
-#define MAIN_ANIMATION 0.25
+#define MAIN_ANIMATION 0.4
 #define DICE_ROLL_TIME 1
 #define DICE_DISPLAY_TIME 1
 #define CHUTE_LADDER_DISPLAY_TIME 1
@@ -60,7 +60,7 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 // all ladders. space ON, then space to move TO. SUBTRACT 1 FROM SPACE ON BOARD (so if label on physical board says 12, put 11).
 #define LADDER_COUNT 4
 int LADDERS[][2] = {
-  {1,13},
+  {1,11},
   {3,18},
   {6,14},
   {10,22}
@@ -176,7 +176,7 @@ void game_loop() {
     case 0: // waiting
       lcd.print("Player ");
       lcd.print(currentplayer);
-      lcd.print("'s Turn!");
+      lcd.print("'s Turn!    ");
       lcd.setCursor(0, 2);
       lcd.print("(Press the button!)");
       break;
