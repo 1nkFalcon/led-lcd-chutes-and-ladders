@@ -20,11 +20,11 @@
 #define STRIP_1_LEDS 21
 #define STRIP_1_START 0
 #define STRIP_2_LEDS 22
-#define STRIP_2_START 1
+#define STRIP_2_START 0
 #define STRIP_3_LEDS 22
 #define STRIP_3_START 1
 #define STRIP_4_LEDS 22
-#define STRIP_4_START 1
+#define STRIP_4_START 0
 #define STRIP_5_LEDS 23
 #define STRIP_5_START 1
 
