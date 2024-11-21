@@ -18,7 +18,7 @@
 // LEDS defines # of leds in strip
 // start defines first visible led (keep in mind for left handed strips this counts from the RIGHT); starts at 0
 #define STRIP_1_LEDS 21
-#define STRIP_1_START 1
+#define STRIP_1_START 0
 #define STRIP_2_LEDS 22
 #define STRIP_2_START 1
 #define STRIP_3_LEDS 22
@@ -133,7 +133,11 @@ int get_led_index(int pos, int playerposoffset) { // get the index for the led b
   if (strip % 2 == 1) {
     playerposoffset = 3 - playerposoffset;
   }
-  ledoffset = stripledoffsets[strip] + (pos % 5) * 4 + playerposoffset;
+  int stripled = (pos % 5) * 4 + playerposoffset;
+  if (stripled >= (stripledcounts[strip]/2)) {
+    stripled++;
+  }
+  ledoffset = stripledoffsets[strip] + stripled;
   return stripoffset + ledoffset;
 }
 
