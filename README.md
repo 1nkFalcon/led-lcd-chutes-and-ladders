@@ -1,3 +1,3 @@
 # led-lcd-chutes-and-ladders
 
-code for engineering project.
+Inside the "project_code" folder, you will find the file containing the code for our Chutes and Ladders Game!
