@@ -60,16 +60,17 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 // all ladders. space ON, then space to move TO. SUBTRACT 1 FROM SPACE ON BOARD (so if label on physical board says 12, put 11).
 #define LADDER_COUNT 4
 int LADDERS[][2] = {
-  {1,11},
-  {3,18},
-  {6,14},
-  {10,22}
+  {2,7},
+  {3,14},
+  {12,20},
+  {15,24}
 };
 #define CHUTE_COUNT 3
 int CHUTES[][2] = {
-  {23,0},
-  {17,5},
-  {15,13}
+  {10,1},
+  {16,4},
+  {21,17},
+  {23,7}
 };
 
 // game variables
