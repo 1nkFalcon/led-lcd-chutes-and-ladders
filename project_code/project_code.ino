@@ -65,7 +65,7 @@ int LADDERS[][2] = {
   {12,20},
   {15,24}
 };
-#define CHUTE_COUNT 3
+#define CHUTE_COUNT 4
 int CHUTES[][2] = {
   {10,1},
   {16,4},
